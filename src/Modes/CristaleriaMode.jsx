@@ -1,85 +1,67 @@
 import './CristaleriaMode.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+const EMPTYCRISTALERIA = {
+    'Vaso Corto': { cajas: 0, individuales: 0 },
+    'Vaso Largo': { cajas: 0, individuales: 0 },
+    'Vaso Huracan': { cajas: 0, individuales: 0 },
+};
+
+const CAJASIZE = {
+        'Vaso Corto': 24,
+        'Vaso Huracan': 12,
+    };
+
 
 export default function CristaleriaMode() {
 
-    const [vasos, setVasos] = useState({
-        'Vaso Corto': { cajas: 0, individuales: 0 },
-        'Vaso Largo': { cajas: 0, individuales: 0 },
-        'Vaso Huracan': { cajas: 0, individuales: 0 },
-        'Vaso de Shot': { cajas: 0, individuales: 0 }
-    });
+    const [vasos, setVasos] = useState(EMPTYCRISTALERIA);
 
-    const cajasSizes = {
-        'Vaso Corto': 24,
-        'Vaso Largo': 1,
-        'Vaso Huracan': 12,
-        'Vaso de Shot': 1
-    };
 
+   
     const [cortoTotal, setCortoTotal] = useState(0);
     const [largoTotal, setLargoTotal] = useState(0);
     const [huracanTotal, setHuracanTotal] = useState(0);
-    const [shotTotal, setShotTotal] = useState(0);
 
-    const handleInputChange = (tipo, field, value) => {
-        const newVasos = { ...vasos };
-        newVasos[tipo][field] = parseInt(value) || 0;
+    useEffect(() => {
+        const storedData = localStorage.getItem('cristaleriaData');
+        if (storedData) {
+            const parsedData = JSON.parse(storedData);
+            setVasos(parsedData);
+            refreshTotal(parsedData);
+        }
+      }, []);
+    
+      useEffect(() => {
+        if (vasos === EMPTYCRISTALERIA) return;
+        localStorage.setItem('cristaleriaData', JSON.stringify(vasos));
+      }, [vasos]);
+
+   const handleInputChange = (tipo, field, value) => {
+        const newVasos = {
+            ...vasos,
+            [tipo]: {
+                ...vasos[tipo],
+                [field]: value === '' ? '' : Number(value)
+            }
+        };
+
         setVasos(newVasos);
 
         // Update total quantities
-        switch (tipo) {
-            case 'Vaso Corto':
-                setCortoTotal(newVasos[tipo].cajas * cajasSizes[tipo] + newVasos[tipo].individuales);
-                break;
-            case 'Vaso Largo':
-                setLargoTotal(newVasos[tipo].cajas * cajasSizes[tipo] + newVasos[tipo].individuales);
-                break;
-            case 'Vaso Huracan':
-                setHuracanTotal(newVasos[tipo].cajas * cajasSizes[tipo] + newVasos[tipo].individuales);
-                break;
-            case 'Vaso de Shot':
-                setShotTotal(newVasos[tipo].cajas * cajasSizes[tipo] + newVasos[tipo].individuales);
-                break;
-            default:
-                break;
-        }
+        const cajas = Number(newVasos[tipo].cajas) || 0;
+        const individuales = Number(newVasos[tipo].individuales) || 0;
+
+        const total = cajas * (CAJASIZE[tipo] || 0) + individuales;
+        refreshTotal(newVasos);
     };
 
-    const handleSave = () => {
-        const dataToSave = {
-            vasos,
-            totals: {
-                'Vaso Corto': cortoTotal,
-                'Vaso Largo': largoTotal,
-                'Vaso Huracan': huracanTotal,
-                'Vaso de Shot': shotTotal
-            }
-        };
-        localStorage.setItem('cristaleriaData', JSON.stringify(dataToSave));
-    };
+    const refreshTotal = (newVasos) => {
+        setCortoTotal((Number(newVasos['Vaso Corto'].cajas) || 0) * CAJASIZE['Vaso Corto'] + (Number(newVasos['Vaso Corto'].individuales) || 0));
+        setLargoTotal((Number(newVasos['Vaso Largo'].individuales) || 0));
+        setHuracanTotal((Number(newVasos['Vaso Huracan'].cajas) || 0) * CAJASIZE['Vaso Huracan'] + (Number(newVasos['Vaso Huracan'].individuales) || 0));
+    }
 
-    const handleLoad = () => {
-        const savedData = JSON.parse(localStorage.getItem('cristaleriaData'));
-        if (savedData) {
-            if (savedData.vasos) {
-                setVasos(savedData.vasos);
-                setCortoTotal(savedData.totals['Vaso Corto'] || 0);
-                setLargoTotal(savedData.totals['Vaso Largo'] || 0);
-                setHuracanTotal(savedData.totals['Vaso Huracan'] || 0);
-                setShotTotal(savedData.totals['Vaso de Shot'] || 0);
-            } else {
-                setCortoTotal(savedData['Vaso Corto'] || 0);
-                setLargoTotal(savedData['Vaso Largo'] || 0);
-                setHuracanTotal(savedData['Vaso Huracan'] || 0);
-                setShotTotal(savedData['Vaso de Shot'] || 0);
-                setVasos(Object.fromEntries(Object.keys(vasos).map((type) => [
-                    type,
-                    { cajas: 0, individuales: savedData[type] || 0 }
-                ])));
-            }
-        }
-    };
 
     const handleShareWhatsapp = () => {
         const message = `Cristaleria:\nVaso Corto: ${cortoTotal}\nVaso Largo: ${largoTotal}\nVaso Huracan: ${huracanTotal}\nVaso de Shot: ${shotTotal}`;
@@ -88,18 +70,25 @@ export default function CristaleriaMode() {
     };
 
     const handleShareText = () => {
-        const message = `Cristaleria:\nVaso Corto: ${cortoTotal}\nVaso Largo: ${largoTotal}\nVaso Huracan: ${huracanTotal}\nVaso de Shot: ${shotTotal}`;
+        const message = `Cristaleria:\nVaso Corto: ${cortoTotal}\nVaso Largo: ${largoTotal}\nVaso Huracan: ${huracanTotal}`;
         navigator.clipboard.writeText(message).then(() => {
             alert('Mensaje copiado al portapapeles');
         });
     };
 
-    const glassTypes = ['Vaso Huracan', 'Vaso Corto', 'Vaso Largo', 'Vaso de Shot'];
+    const handleReset = () => {
+        setVasos(EMPTYCRISTALERIA);
+        setCortoTotal(0);
+        setLargoTotal(0);
+        setHuracanTotal(0);
+        localStorage.removeItem('cristaleriaData');
+    }
+
+    const glassTypes = ['Vaso Huracan', 'Vaso Corto', 'Vaso Largo'];
     const totals = {
         'Vaso Corto': cortoTotal,
         'Vaso Largo': largoTotal,
         'Vaso Huracan': huracanTotal,
-        'Vaso de Shot': shotTotal,
     };
 
   return (
@@ -112,8 +101,7 @@ export default function CristaleriaMode() {
                 <p>Caja de huracan = 12 , Cada de Vaso corto = 24 , los otros no los se.</p>
             </header>
             <div className="mode-actions">
-                <button type="button" onClick={handleSave}>Guardar</button>
-                <button type="button" onClick={handleLoad}>Cargar</button>
+                <button type="button" onClick={handleReset}>Reiniciar</button>
                 <button type="button" onClick={handleShareWhatsapp}>Compartir por WhatsApp</button>
                 <button type="button" onClick={handleShareText}>Copiar mensaje</button>
             </div>
@@ -127,15 +115,25 @@ export default function CristaleriaMode() {
                 {glassTypes.map((type) => (
                     <div className="glass-row" key={type}>
                         <strong className="glass-name">{type}</strong>
+                        {CAJASIZE[type] ?  ( 
+                        <>
+                            <label className="glass-field">
+                                <span>Cajas completas</span>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={vasos[type].cajas}
+                                    onChange={(event) => handleInputChange(type, 'cajas', event.target.value)}
+                                    />
+                            </label>
+                        </>
+                        ) : 
+                        <>
                         <label className="glass-field">
-                            <span>Cajas completas</span>
-                            <input
-                                type="number"
-                                min="0"
-                                value={vasos[type].cajas}
-                                onChange={(event) => handleInputChange(type, 'cajas', event.target.value)}
-                            />
-                        </label>
+                                <span>Cajas completas</span>
+                                <p className="no-aplica">No aplica</p>
+                            </label>
+                        </>}
                         <label className="glass-field">
                             <span>Individuales</span>
                             <input

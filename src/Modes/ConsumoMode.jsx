@@ -40,7 +40,6 @@ export default function ConsumoMode() {
         [field]: value === '' ? '' : Number(value),
       },
     }));
-    localStorage.setItem('consumoData', JSON.stringify(consumoData));
   };
 
   const handleReset = () => {

@@ -1,26 +1,26 @@
-import { useState } from 'react'
+import { useState , useEffect} from 'react'
 import './AlmacenMode.css'
 
 const initialItems = {
   verduleria: [
-    { name: 'Lima', quantity: 6, unit: 'kg' },
-    { name: 'Limon', quantity: 1, unit: 'kg' },
-    { name: 'Pomelo', quantity: 4, unit: 'kg' },
-    { name: 'Naranja', quantity: 8, unit: 'kg' },
+    { name: 'Lima', quantity: 0, unit: 'kg' },
+    { name: 'Limon', quantity: 0, unit: 'kg' },
+    { name: 'Pomelo', quantity: 0, unit: 'kg' },
+    { name: 'Naranja', quantity: 0, unit: 'kg' },
     { name: 'Menta', quantity: 0, unit: 'paquetes' },
     { name: 'Banana', quantity: 0, unit: 'unidades' },
     { name: 'Jengibre', quantity: 0, unit: 'unidades' },
     { name: 'Pepino', quantity: 0, unit: 'unidades' },
     { name: 'Romero', quantity: 0, unit: 'paquetes' },
   ],
-  helado: [{ name: 'Balde', quantity: 1, unit: 'unidad' }],
+  helado: [{ name: 'Balde', quantity: 0, unit: 'unidad' }],
   almacen: [
-    { name: 'Leche', quantity: 1, unit: 'lt' },
-    { name: 'Azucar', quantity: 7, unit: 'kg' },
+    { name: 'Leche', quantity: 0, unit: 'lt' },
+    { name: 'Azucar', quantity: 0, unit: 'kg' },
     { name: 'Miel', quantity: 0, unit: 'lt' },
-    { name: 'Paquete Oreo', quantity: 28, unit: 'unidades' },
-    { name: 'Clight Limonada', quantity: 15, unit: 'sobres' },
-    { name: 'Clight Pomelo Rosado', quantity: 15, unit: 'sobres' },
+    { name: 'Paquete Oreo', quantity: 0, unit: 'unidades' },
+    { name: 'Clight Limonada', quantity: 0, unit: 'sobres' },
+    { name: 'Clight Pomelo Rosado', quantity: 0, unit: 'sobres' },
   ],
 }
 
@@ -33,14 +33,28 @@ const sectionNames = {
 export default function AlmacenMode() {
   const [items, setItems] = useState(initialItems)
 
+  useEffect(() => {
+    const storedItems = localStorage.getItem('almacenData')
+    if (storedItems) {
+      setItems(JSON.parse(storedItems))
+    }
+  }, [])
+
+  useEffect(() => {
+    if (items === initialItems) return
+    localStorage.setItem('almacenData', JSON.stringify(items))
+  }, [items])
+
   const handleInputChange = (section, index, value) => {
     setItems((currentItems) => ({
       ...currentItems,
       [section]: currentItems[section].map((item, itemIndex) =>
-        itemIndex === index ? { ...item, quantity: Number(value) || 0 } : item,
+        itemIndex === index ? { ...item, quantity: '' === value ? '' : Number(value) } : item,
       ),
     }))
   }
+
+
 
   const createMessage = () => {
     const lines = ['SALON: Hudson | FECHA: 24/10/2026', '']
@@ -56,15 +70,9 @@ export default function AlmacenMode() {
     return lines.join('\n').trim()
   }
 
-  const handleSave = () => {
-    localStorage.setItem('almacenData', JSON.stringify(items))
-  }
-
-  const handleLoad = () => {
-    const savedItems = localStorage.getItem('almacenData')
-    if (savedItems) {
-      setItems(JSON.parse(savedItems))
-    }
+  const handleReset = () => {
+    setItems(initialItems)
+    localStorage.removeItem('almacenData')
   }
 
   const handleShareWhatsapp = () => {
@@ -89,6 +97,11 @@ export default function AlmacenMode() {
           <span>Fecha: <strong>24/10/2026</strong></span>
         </div>
       </header>
+      <div className="almacen-actions">
+        <button type="button" onClick={handleReset}>Reiniciar</button>
+        <button type="button" onClick={handleShareWhatsapp}>Compartir por WhatsApp</button>
+        <button type="button" onClick={handleShareText}>Copiar mensaje</button>
+      </div>
 
       <div className="stock-sections">
         {Object.entries(items).map(([section, sectionItems]) => (
@@ -120,16 +133,6 @@ export default function AlmacenMode() {
             </div>
           </section>
         ))}
-      </div>
-
-      <div className="almacen-actions">
-        <button type="button" onClick={handleSave}>Guardar</button>
-        <button type="button" onClick={handleLoad}>Cargar</button>
-      </div>
-      <div className="share-container">
-        <p>Compartir pedido</p>
-        <button type="button" onClick={handleShareWhatsapp}>Compartir por WhatsApp</button>
-        <button type="button" onClick={handleShareText}>Copiar mensaje</button>
       </div>
     </section>
   )
