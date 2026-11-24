@@ -1,0 +1,101 @@
+.cristaleria-mode {
+  width: min(100%, 900px);
+  margin: 0 auto;
+  color: #263238;
+}
+
+.glass-table {
+  overflow: hidden;
+  border: 1px solid #dfe7e3;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.glass-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) repeat(3, minmax(110px, 150px));
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid #edf1ef;
+}
+
+.glass-labels {
+  border-top: 0;
+  background: #edf5f0;
+  color: #547060;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.glass-name {
+  text-align: left;
+}
+
+.glass-field {
+  display: block;
+  min-width: 0;
+}
+
+.glass-field span {
+  display: none;
+}
+
+.glass-field input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid #c9d7d0;
+  border-radius: 5px;
+  color: #263238;
+  font: inherit;
+}
+
+.glass-field input:focus {
+  outline: 2px solid #78a88e;
+  outline-offset: 1px;
+}
+
+.glass-total {
+  color: #315746;
+  font-weight: 700;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .glass-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .glass-labels {
+    display: none;
+  }
+
+  .glass-name {
+    grid-column: 1 / -1;
+  }
+
+  .glass-field span {
+    display: block;
+    margin-bottom: 5px;
+    color: #687a72;
+    font-size: 0.75rem;
+  }
+
+  .glass-total {
+    grid-column: 1 / -1;
+    padding-top: 8px;
+    border-top: 1px solid #edf1ef;
+    text-align: left;
+  }
+
+  .glass-total::before {
+    content: 'Total: ';
+    color: #687a72;
+    font-weight: 500;
+  }
+}

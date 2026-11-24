@@ -1,0 +1,84 @@
+.mode-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.mode-eyebrow {
+  margin: 0 0 3px;
+  color: #57806d;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.mode-heading h2 {
+  margin: 0;
+  color: #20372d;
+}
+
+.mode-heading p:not(.mode-eyebrow) {
+  margin: 0;
+  color: #687a72;
+  font-size: 0.9rem;
+}
+
+.mode-actions,
+.consumo-buttons,
+.share-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.mode-actions button,
+.consumo-buttons button,
+.share-container button {
+  min-height: 40px;
+  padding: 8px 13px;
+  border: 1px solid #315746;
+  border-radius: 5px;
+  background: #315746;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.mode-actions button:hover,
+.consumo-buttons button:hover,
+.share-container button:hover {
+  border-color: #20372d;
+  background: #20372d;
+}
+
+.mode-actions button:focus-visible,
+.consumo-buttons button:focus-visible,
+.share-container button:focus-visible,
+.mode-navigation button:focus-visible {
+  outline: 3px solid #93b7a1;
+  outline-offset: 2px;
+}
+
+.mode-container input {
+  color-scheme: light;
+}
+
+@media (max-width: 640px) {
+  .mode-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .consumo-buttons button,
+  .mode-actions button,
+  .share-container button {
+    flex: 1 1 auto;
+  }
+}
